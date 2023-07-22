@@ -1,0 +1,28 @@
+{
+  "name": "simple-notes",
+  "version": "1.0.0",
+  "description": "A simple notes app built with React-Native that uses Express.js for the backend; built with Expo",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Frances0397/simple-notes.git"
+  },
+  "keywords": [
+    "notes",
+    "react-native",
+    "expo",
+    "express.js"
+  ],
+  "author": "Francesca Caivano",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Frances0397/simple-notes/issues"
+  },
+  "homepage": "https://github.com/Frances0397/simple-notes#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
