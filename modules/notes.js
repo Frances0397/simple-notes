@@ -4,6 +4,7 @@ class Note {
         this.title = title;
         this.content = content;
     }
+
 }
 
 module.exports = Note;

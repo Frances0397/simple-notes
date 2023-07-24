@@ -1,8 +1,8 @@
 const express = require('express');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const note = require('./modules/notes');
 const Note = require('./modules/notes');
+const notesHelper = require('./modules/notes-helper');
 
 const app = express();
 const port = 3000; // You can use any desired port number.
@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/notes', (req, res) => {
-    console.log("API in costruzione: get all notes");
+    console.log("Get all notes");
 
     //Read the json file
     fs.readFile('./files/notes.json', 'utf8', (err, data) => {
@@ -27,8 +27,7 @@ app.get('/notes', (req, res) => {
 
         try {
             //Parse the json file 
-            const jsonData = JSON.parse(data);
-            const notes = jsonData.notes;
+            const notes = JSON.parse(data);
             //Build an array with IDs, titles and content preview
             var noteItems = [];
 
@@ -61,8 +60,7 @@ app.get('/note/:id', (req, res) => {
 
         try {
             //Parse the json file 
-            const jsonData = JSON.parse(data);
-            const notes = jsonData.notes;
+            const notes = JSON.parse(data);
 
             //Find the item with requested ID
             const noteItem = notes.find((item) => item.id === noteId);
@@ -81,10 +79,8 @@ app.post('/notes', (req, res) => {
     //Leggo il contenuto della richiesta
     console.log(req.body);
 
-    var newID = 0;
-
     //Stacco un nuovo ID consecutivo a quelli già presenti
-    fs.readFile('./files/notes.json', 'utf8', (err, data) => { //questa funzione sta diventando un po' lunga, controllare se si può modularizzare
+    fs.readFile('./files/notes.json', 'utf8', (err, data) => {
         if (err) {
             console.error('Error reading the file:', err);
             return res.status(500).json({ error: 'Server error' });
@@ -92,23 +88,19 @@ app.post('/notes', (req, res) => {
 
         try {
             //Parse the json file 
-            const jsonData = JSON.parse(data);
-            const notes = jsonData.notes;
+            const notes = JSON.parse(data);
 
-            //Find the last item
-            let lastItem = notes[notes.length - 1];
-            console.log(lastItem); //testing purposes
+            //Riempio l'ID e i campi metadata
+            req.body.id = notesHelper.getNewId(notes);
+            req.body.date_created = notesHelper.getModifiedDate();
+            req.body.time_created = notesHelper.getModifiedTime();
+            req.body.date_modified = notesHelper.getModifiedDate();
+            req.body.time_modified = notesHelper.getModifiedTime();
 
-            let lastID = lastItem.id;
-            newID = parseInt(lastID) + 1;
-            console.log(newID); //testing purposes
-            req.body.id = newID.toString();
-            console.log(req.body); //testing purposes
-
-            jsonData.notes.push(req.body);
+            notes.push(req.body);
 
             //Scrivo il contenuto della richiesta nel DB e restituisco uno stato positivo o negativo
-            fs.writeFile('./files/notes.json', JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
+            fs.writeFile('./files/notes.json', JSON.stringify(notes, null, 2), 'utf8', (err) => {
                 if (err) {
                     console.error('Error writing to file:', err);
                     return res.status(500).json({ error: 'Error writing to file' });
@@ -124,18 +116,76 @@ app.post('/notes', (req, res) => {
 });
 
 app.put('/note/:id', (req, res) => {
-    //@TO-DO: leggo il contenuto della richiesta
-    //@TO-DO: recupero dal DB la nota con id req.params.id e ne aggiorno il contenuto
-    //@TO-DO: restituisco lo stato di avvenuto o non avvenuto aggiornamento
     const noteId = req.params.id;
-    res.send(`You updated the note with ID: ${noteId}`);
+    console.log(`You sent an update to the note with ID: ${noteId}`);
+
+    //leggo il contenuto della richiesta
+    console.log(req.body);
+
+    //recupero dal DB la nota con id req.params.id e ne aggiorno il contenuto
+    fs.readFile('./files/notes.json', 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading the file:', err);
+            return res.status(500).json({ error: 'Server error' });
+        }
+
+        try {
+            //Parse the json file 
+            const notes = JSON.parse(data);
+
+            var noteItem = notes.find((item) => item.id === noteId);
+            noteItem.content = req.body.content;
+            noteItem.date_modified = notesHelper.getModifiedDate();
+            noteItem.time_modified = notesHelper.getModifiedTime();
+
+            //Salvo la nota con il nuovo contenuto
+            fs.writeFile('./files/notes.json', JSON.stringify(notes, null, 2), 'utf8', (err) => {
+                if (err) {
+                    console.error('Error writing to file:', err);
+                    return res.status(500).json({ error: 'Error writing to file' });
+                } else {
+                    res.send(`Succesfully updated the note with id ${noteId}`);
+                }
+            });
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+            return res.status(500).json({ error: 'Invalid JSON format' });
+        }
+    });
 });
 
 app.delete('/note/:id', (req, res) => {
-    //@TO-DO: recupero dal DB la nota con ID selezionato e la cancello dal DB
-    //@TO-DO: resituisco lo stato dell'operazione effettuata
     const noteId = req.params.id;
-    res.send(`You deleted the note with ID: ${noteId}`);
+    console.log(`You want to delete the note with ID: ${noteId}`);
+
+    //@TO-DO: recupero dal DB la nota con ID selezionato e la cancello dal DB
+    fs.readFile('./files/notes.json', 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading the file:', err);
+            return res.status(500).json({ error: 'Server error' });
+        }
+
+        try {
+            //Parse the json file 
+            const notes = JSON.parse(data);
+
+            //Creo una copia dell'array senza la nota cancellata
+            var noteItems = notes.filter((item) => item.id !== noteId);
+
+            //salvo il nuovo array nel file json
+            fs.writeFile('./files/notes.json', JSON.stringify(noteItems, null, 2), 'utf8', (err) => {
+                if (err) {
+                    console.error('Error writing to file:', err);
+                    return res.status(500).json({ error: 'Error writing to file' });
+                } else {
+                    res.send(`Succesfully deleted the note with id ${noteId}`);
+                }
+            });
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+            return res.status(500).json({ error: 'Invalid JSON format' });
+        }
+    });
 });
 
 // Start the server.
