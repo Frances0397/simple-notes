@@ -1,7 +1,26 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Text, Card, Button, Icon, ThemeProvider, createTheme } from '@rneui/themed';
+import { Header, HeaderProps } from '@rneui/themed';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+// import { TouchableOpacity } from 'react-native-gesture-handler';
+
+const theme = createTheme({
+  colors: {
+    background: '#001524',   // Background color of the app
+    primary: '#15616D',      // Your primary color
+    secondary: '#FF7D00',    // Your secondary color
+  },
+  Text: {
+    style: {
+      color: '#FFECD1',      // Text color
+      fontSize: 16,
+    },
+  },
+  mode: 'dark',
+});
 
 export default function App() {
 
@@ -21,19 +40,38 @@ export default function App() {
     fetchData();
   }, []);
 
+  // return (
+  //   <View style={styles.container}>
+  //     {data ? <Text>{JSON.stringify(data)}</Text> : <Text>Loading...</Text>}
+  //     <StatusBar style="auto" />
+  //   </View>
+  // );
+
   return (
-    <View style={styles.container}>
-      {data ? <Text>{JSON.stringify(data)}</Text> : <Text>Loading...</Text>}
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <ThemeProvider theme={theme}>
+        <View style={styles.container}>
+          <Header
+            containerStyle={{ backgroundColor: theme.colors.primary }}
+            leftComponent={
+              <Icon name="menu" size={24} color="white" />
+            }
+          />
+          {data ? <Text>{JSON.stringify(data)}</Text> : <Text>Loading...</Text>}
+          <Button title="Basic button"></Button>
+        </View>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: theme.colors.background,
+    alignItems: 'flex-start',
   },
+  content: {
+    flex: 1
+  }
 });
