@@ -5,6 +5,10 @@ import axios from 'axios';
 import { Text, Card, Button, Icon, ThemeProvider, createTheme } from '@rneui/themed';
 import { Header, HeaderProps } from '@rneui/themed';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+
+import CardView from './components/CardView';
+import ListView from './components/ListView';
 // import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const theme = createTheme({
@@ -24,21 +28,29 @@ const theme = createTheme({
 
 export default function App() {
 
-  const [data, setData] = useState(null);
+  // const [data, setData] = useState([]);
 
-  useEffect(() => {
-    //Function to make the API call
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://192.168.43.181:3000');
-        setData(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+  // useEffect(() => {
+  //   //Function to make the API call
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await axios.get('http://192.168.43.181:3000');
+  //       setData(response.data);
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   };
+  // }, []);
 
-    fetchData();
-  }, []);
+  // const fetchData = async () => {
+  //   try {
+  //     const response = await axios.get('/notes');
+  //     console.log(response.data);
+  //     setData(response.data); // Store the fetched data in the state
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //   }
+  // };
 
   // return (
   //   <View style={styles.container}>
@@ -47,6 +59,26 @@ export default function App() {
   //   </View>
   // );
 
+  const [showCardView, setShowCardView] = useState(true);
+
+  const switchView = () => {
+    setShowCardView(!showCardView);
+  };
+
+  const addNote = () => {
+    //TO-DO: handle switching to content view
+    alert("Add note");
+  };
+
+  const createData = async (oNote) => { //SPOSTARE nell'evento giusto
+    try {
+      const response = await axios.post('http://192.168.1.62:3000/notes', oNote);
+      console.log(response);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
   return (
     <SafeAreaProvider>
       <ThemeProvider theme={theme}>
@@ -54,11 +86,17 @@ export default function App() {
           <Header
             containerStyle={{ backgroundColor: theme.colors.primary }}
             leftComponent={
-              <Icon name="menu" size={24} color="white" />
+              <Ionicons name={showCardView ? "menu" : "grid-outline"} size={24} color="white" onPress={switchView} />
             }
           />
-          {data ? <Text>{JSON.stringify(data)}</Text> : <Text>Loading...</Text>}
-          <Button title="Basic button"></Button>
+          {showCardView ? <CardView /> : <ListView />}
+          <View style={styles.bottomContainer}>
+            <Button
+              icon={<Ionicons name="ios-add" size={24} color="#FFECD1" />}
+              buttonStyle={styles.addButton}
+              onPress={addNote}
+            />
+          </View>
         </View>
       </ThemeProvider>
     </SafeAreaProvider>
@@ -69,9 +107,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    alignItems: 'flex-start',
+    // alignItems: 'flex-start',
   },
   content: {
-    flex: 1
-  }
+    flex: 1,
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  bottomContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+  },
+  addButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
