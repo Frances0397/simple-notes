@@ -42,15 +42,6 @@ export default function App() {
         navigation.navigate("Detail", { id: "-1" });
     };
 
-    const createData = async (oNote) => { //SPOSTARE nell'evento giusto
-        try {
-            const response = await axios.post('http://192.168.1.62:3000/notes', oNote);
-            console.log(response);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    };
-
     return (
         <SafeAreaProvider>
             <ThemeProvider theme={theme}>

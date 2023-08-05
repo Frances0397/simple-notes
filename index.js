@@ -134,9 +134,13 @@ app.put('/note/:id', (req, res) => {
             const notes = JSON.parse(data);
 
             var noteItem = notes.find((item) => item.id === noteId);
+            noteItem.title = req.body.title;
             noteItem.content = req.body.content;
             noteItem.date_modified = notesHelper.getModifiedDate();
             noteItem.time_modified = notesHelper.getModifiedTime();
+
+            console.log("suca");
+            console.log(notes);
 
             //Salvo la nota con il nuovo contenuto
             fs.writeFile('./files/notes.json', JSON.stringify(notes, null, 2), 'utf8', (err) => {

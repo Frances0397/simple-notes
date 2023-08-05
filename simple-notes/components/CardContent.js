@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, TextInput } from 'react-native';
 import { Card, Input, Button } from '@rneui/themed';
 import axios from 'axios';
@@ -59,8 +59,60 @@ export default function CardContent() {
         }
     };
 
-    const showInfo = () => {
-        alert("show note info");
+    //HANDLE SAVING NOTES
+    const inputTitle = useRef(null); // Create a ref for the title TextInput
+    const inputContent = useRef(null); // Create a ref for the content TextInput
+
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState(""); //
+
+    const save = () => {
+        console.log("saving note");
+
+        var oNote = {
+            id: "",
+            title: title,
+            content: content,
+            date_created: "",
+            time_created: "",
+            date_modified: "",
+            time_modified: "",
+        };
+
+        if (!newNote) {
+            oNote.id = noteId;
+            oNote.date_created = data.date_created;
+            oNote.time_created = data.time_created;
+
+            if (title == '') {
+                oNote.title = data.title;
+            }
+            if (content == '') {
+                oNote.content = data.content;
+            }
+
+            updateData(oNote);
+        } else {
+            createData(oNote);
+        }
+    };
+
+    const createData = async (oNote) => {
+        try {
+            const response = await axios.post('http://192.168.1.62:3000/notes', oNote);
+            console.log(response);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    const updateData = async (sNote) => {
+        try {
+            const response = await axios.put('http://192.168.1.62:3000/note/' + noteId, sNote);
+            console.log(response);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     };
 
     if (loading) {
@@ -73,16 +125,16 @@ export default function CardContent() {
                     containerStyle={styles.cardContainer} wrapperStyle={styles.card}
                 >
                     {/* <Card.Title style={styles.title}>Contenuto</Card.Title> */}
-                    <TextInput numberOfLines={1} ellipsizeMode="tail" style={styles.title} placeholder='Title'>{newNote ? "" : data.title}</TextInput>
+                    <TextInput numberOfLines={1} ellipsizeMode="tail" style={styles.title} placeholder='Title' ref={inputTitle} onChangeText={(text) => setTitle(text)}>{newNote ? "" : data.title}</TextInput>
                     <Card.Divider />
                     {/* <Text style={styles.text}></Text> */}
                     {/* <Input inputStyle={styles.text}>Lorem er ultricies, lacus lectus gravida s</Input> */}
-                    <TextInput multiline numberOfLines={null} style={styles.text} placeholder='Content'>{newNote ? "" : data.content}</TextInput>
+                    <TextInput multiline numberOfLines={null} style={styles.text} placeholder='Content' ref={inputContent} onChangeText={(text) => setContent(text)}>{newNote ? "" : data.content}</TextInput>
                     <View style={styles.bottomContainer}>
                         <Button
-                            icon={<Ionicons name="information-circle-outline" size={24} color="#FFECD1" />}
+                            icon={<Ionicons name="checkmark-circle-outline" size={24} color="#FFECD1" />}
                             buttonStyle={styles.infoButton}
-                            onPress={showInfo}
+                            onPress={save}
                         />
                     </View>
                 </Card>

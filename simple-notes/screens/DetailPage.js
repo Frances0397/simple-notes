@@ -42,6 +42,9 @@ export default function DetailPage() {
                         leftComponent={
                             <Ionicons name={"chevron-back"} size={24} color="white" onPress={navBack} />
                         }
+                        rightComponent={
+                            <Ionicons name={"information-outline"} size={24} color="white" onPress={navBack} />
+                        }
                     />
                     {/* {showCardView ? <CardView /> : <ListView />} */}
                     <CardContent />
