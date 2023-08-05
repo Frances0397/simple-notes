@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "simple-notes",
-    "slug": "simple-notes",
+    "name": "simple-notes-backup",
+    "slug": "simple-notes-backup",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
