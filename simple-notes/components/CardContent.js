@@ -46,7 +46,7 @@ export default function CardContent() {
 
     const fetchData = async (sId) => {
         try {
-            const response = await axios.get('http://192.168.1.62:3000/note/' + sId);
+            const response = await axios.get('http://192.168.43.181:3000/note/' + sId);
             console.log("fetch data");
             console.log(response.data);
             let jsonString = response.data;
@@ -99,19 +99,23 @@ export default function CardContent() {
 
     const createData = async (oNote) => {
         try {
-            const response = await axios.post('http://192.168.1.62:3000/notes', oNote);
+            const response = await axios.post('http://192.168.43.181:3000/notes', oNote);
             console.log(response);
+            navigation.navigate('Home');
         } catch (error) {
             console.error('Error fetching data:', error);
+            alert('Error fetching data:', error);
         }
     };
 
     const updateData = async (sNote) => {
         try {
-            const response = await axios.put('http://192.168.1.62:3000/note/' + noteId, sNote);
+            const response = await axios.put('http://192.168.43.181:3000/note/' + noteId, sNote);
             console.log(response);
+            navigation.navigate('Home');
         } catch (error) {
             console.error('Error fetching data:', error);
+            alert('Error fetching data:', error);
         }
     };
 

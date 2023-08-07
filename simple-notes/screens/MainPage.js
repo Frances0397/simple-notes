@@ -31,6 +31,7 @@ export default function App() {
     const navigation = useNavigation(true);
 
     const [showCardView, setShowCardView] = useState(true);
+    const [selectionMode, setSelectionMode] = useState(true);
 
     const switchView = () => {
         setShowCardView(!showCardView);
@@ -42,6 +43,14 @@ export default function App() {
         navigation.navigate("Detail", { id: "-1" });
     };
 
+    const handleToggleSelectionMode = () => {
+        setSelectionMode(!selectionMode); //
+    };
+
+    const stopSelectionMode = () => {
+        setSelectionMode(false);
+    }
+
     return (
         <SafeAreaProvider>
             <ThemeProvider theme={theme}>
@@ -51,11 +60,13 @@ export default function App() {
                         leftComponent={
                             <Ionicons name={showCardView ? "menu" : "grid-outline"} size={24} color="white" onPress={switchView} />
                         }
+                        rightComponent={selectionMode && <Ionicons name="close" size={24} onPress={stopSelectionMode} />}
                     />
-                    {showCardView ? <CardView /> : <ListView />}
+                    {showCardView ? <CardView selectionMode={selectionMode} toggleSelectionMode={handleToggleSelectionMode} /> :
+                        <ListView selectionMode={selectionMode} toggleSelectionMode={handleToggleSelectionMode} />}
                     <View style={styles.bottomContainer}>
                         <Button
-                            icon={<Ionicons name="ios-add" size={24} color="#FFECD1" />}
+                            icon={<Ionicons name={selectionMode ? "trash-outline" : "ios-add"} size={24} color="#FFECD1" />}
                             buttonStyle={styles.addButton}
                             onPress={addNote}
                         />

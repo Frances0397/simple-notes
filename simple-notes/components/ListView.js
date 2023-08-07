@@ -1,36 +1,80 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { ListItem } from '@rneui/themed';
+import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { ListItem, CheckBox } from '@rneui/themed';
 import axios from 'axios';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
-export default function ListView() {
+export default function ListView({ selectionMode, toggleSelectionMode }) {
     const [data, setData] = useState([]); //TO-DO: vedere se la parte di chiamata, visto che è uguale per le due viste, si può modularizzare
+    const [refreshing, setRefreshing] = React.useState(false);
+    const isFocused = useIsFocused();
+    const [itemChecked, setItemChecked] = useState([]);
 
     // Make the API call using Axios when the component mounts
     useEffect(() => {
         //Function to make the API call
-        fetchData();
-    }, []);
+        if (isFocused) {
+            fetchData();
+        }
+        //I set all the chekboxes to unselected
+        const initialChecked = new Array(data.length).fill(false);
+        setItemChecked(initialChecked);
+    }, [isFocused]);
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://192.168.1.62:3000/notes');
+            const response = await axios.get('http://192.168.43.181:3000/notes');
             console.log(response.data);
             setData(response.data); // Store the fetched data in the state
+            toggleSelectionMode();
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     };
 
+    const refreshData = async () => {
+        // User is dragging down
+        console.log('Dragging down');
+        fetchData();
+    };
+
+    //navigate to content page
+    const navigation = useNavigation(true);
+
+    const onSeeContent = async (sId) => {
+        console.log("Nav to " + sId);
+        navigation.navigate("Detail", { id: sId });
+    };
+
+    //handling of massive selection + deletion
+    // const onHold = () => {
+    //     console.log("you long pressed a note!");
+    //     //show checkboxes for multiple selection
+    //     toggleSelectionMode();
+    // };
+
+    const toggleItemCheck = (index) => {
+        setItemChecked((prevChecked) => {
+            const newChecked = [...prevChecked];
+            newChecked[index] = !newChecked[index];
+            return newChecked;
+        });
+    };
+
     return (
-        <ScrollView>
+        <ScrollView refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refreshData} />
+        }>
             <View style={styles.container}>
-                {data.map((item) => (
-                    <ListItem key={item.id} style={styles.list}>
+                {data.map((item, index) => (
+                    <ListItem key={item.id} style={styles.list} onPress={() => { if (!selectionMode) { onSeeContent(item.id); } }}
+                        onLongPress={() => { if (!selectionMode) { toggleSelectionMode(); } }}>
                         <ListItem.Content>
-                            <ListItem.Title>{item.title}</ListItem.Title>
-                            <ListItem.Subtitle><Text style={styles.text} numberOfLines={4} ellipsizeMode="tail">{item.content}</Text></ListItem.Subtitle>
+                            <ListItem.Title numberOfLines={1} ellipsizeMode='tail'>{item.title}</ListItem.Title>
+                            <Text style={styles.text} numberOfLines={4} ellipsizeMode="tail">{item.content}</Text>
                         </ListItem.Content>
+                        {selectionMode && <CheckBox checkedIcon="dot-circle-o" uncheckedIcon="circle-o"
+                            key={item.id} checked={itemChecked[index]} onPress={() => toggleItemCheck(index)}></CheckBox>}
                     </ListItem>
                 ))}
             </View>

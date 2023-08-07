@@ -1,23 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Card } from '@rneui/themed';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { Card, CheckBox } from '@rneui/themed';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
-export default function CardView() {
+export default function CardView({ selectionMode, toggleSelectionMode }) {
     const [data, setData] = useState([]);
+    const [refreshing, setRefreshing] = React.useState(false);
+    const isFocused = useIsFocused();
+    // const [isChecked, setIsChecked] = useState(false);
+    const [itemChecked, setItemChecked] = useState([]);
 
     // Make the API call using Axios when the component mounts
     useEffect(() => {
         //Function to make the API call
-        fetchData();
-    }, []);
+        if (isFocused) {
+            fetchData();
+        }
+        //I set all the chekboxes to unselected
+        const initialChecked = new Array(data.length).fill(false);
+        setItemChecked(initialChecked);
+    }, [isFocused]);
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://192.168.1.62:3000/notes');
+            const response = await axios.get('http://192.168.43.181:3000/notes');
             console.log(response.data);
             setData(response.data); // Store the fetched data in the state
+            //  setSelectionMode(false);
+            toggleSelectionMode();
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -30,21 +41,50 @@ export default function CardView() {
         navigation.navigate("Detail", { id: sId });
     };
 
+    const refreshData = async () => {
+        // User is dragging down
+        console.log('Dragging down');
+        fetchData();
+    };
+
+    //handling of massive selection + deletion
+    // const onHold = () => {
+    //     console.log("you long pressed a note!");
+    //     //show checkboxes for multiple selection
+    //     setSelectionMode(true);
+    // };
+
+    const toggleItemCheck = (index) => {
+        setItemChecked((prevChecked) => {
+            const newChecked = [...prevChecked];
+            newChecked[index] = !newChecked[index];
+            return newChecked;
+        });
+    };
+
     return (
-        <ScrollView styles={styles.mainContainer}>
+        <ScrollView styles={styles.mainContainer} refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refreshData} />
+        }>
             <View style={styles.container}>
-                {data.map((item) => (
-                    <TouchableOpacity key={item.id} onPress={() => onSeeContent(item.id)} style={styles.touchableCard}>
+                {data.map((item, index) => (
+                    <TouchableOpacity key={item.id} onPress={() => { if (!selectionMode) { onSeeContent(item.id); } }}
+                        style={styles.touchableCard} onLongPress={() => { if (!selectionMode) { toggleSelectionMode(); } }}>
                         <Card key={item.id} containerStyle={styles.cardContainer} wrapperStyle={styles.card} >
-                            <Card.Title>{item.title}</Card.Title>
-                            <Card.Divider />
-                            <Text style={styles.text} numberOfLines={4} ellipsizeMode="tail">{item.content}</Text>
-                            {/* Add other content or customizations to the Card as needed */}
+                            <View style={styles.cardContent}>
+                                <Card.Title numberOfLines={1} ellipsizeMode='tail'>{item.title}</Card.Title>
+                                <Card.Divider />
+                                <Text style={styles.text} numberOfLines={selectionMode ? 2 : 4} ellipsizeMode="tail">{item.content}</Text>
+                                {selectionMode && (< CheckBox containerStyle={styles.checkboxContainer} checkedIcon="dot-circle-o"
+                                    key={item.id}
+                                    uncheckedIcon="circle-o" right='true' checked={itemChecked[index]}
+                                    onPress={() => toggleItemCheck(index)}></CheckBox>)}
+                            </View>
                         </Card>
                     </TouchableOpacity>
                 ))}
             </View>
-        </ScrollView>
+        </ScrollView >
     );
 }
 
@@ -87,6 +127,18 @@ const styles = StyleSheet.create({
     },
     text: {
         color: '#FFECD1',
+    },
+    checkboxContainer: {
+        padding: 0,
+        margin: 0,
+        marginTop: 8,
+        marginLeft: 15,
+        backgroundColor: 'transparent',
+        borderColor: 'transparent',
+    },
+    cardContent: {
+        flexDirection: 'column',
+        justifyContent: 'space-between',
     },
 });
 
