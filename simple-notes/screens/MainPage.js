@@ -32,6 +32,7 @@ export default function App() {
 
     const [showCardView, setShowCardView] = useState(true);
     const [selectionMode, setSelectionMode] = useState(true);
+    const [selectedItems, setSelectedItems] = useState([]);
 
     const switchView = () => {
         setShowCardView(!showCardView);
@@ -44,12 +45,37 @@ export default function App() {
     };
 
     const handleToggleSelectionMode = () => {
-        setSelectionMode(!selectionMode); //
+        setSelectionMode(!selectionMode);
+        setSelectedItems([]);
     };
 
     const stopSelectionMode = () => {
         setSelectionMode(false);
-    }
+    };
+
+    const deleteSelected = () => {
+        console.log("Delete selected items");
+        console.log(selectedItems);
+        //loop at the items to delete and make a delete call for each one
+        for (let i = 0; i < selectedItems.length; i++) {
+            console.log(selectedItems[i].id); //testing purposes
+            deleteNote(selectedItems[i].id);
+        }
+        setSelectionMode(false);
+    };
+
+    const deleteNote = async (noteId) => {
+        try {
+            const response = await axios.delete('http://192.168.43.181:3000/note/' + noteId);
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    const handleSelectedItems = (newSelectedItems) => {
+        setSelectedItems(newSelectedItems);
+    };
 
     return (
         <SafeAreaProvider>
@@ -62,13 +88,14 @@ export default function App() {
                         }
                         rightComponent={selectionMode && <Ionicons name="close" size={24} onPress={stopSelectionMode} />}
                     />
-                    {showCardView ? <CardView selectionMode={selectionMode} toggleSelectionMode={handleToggleSelectionMode} /> :
+                    {showCardView ? <CardView selectionMode={selectionMode} toggleSelectionMode={handleToggleSelectionMode}
+                        handleSelectedItems={handleSelectedItems} selectedItems={selectedItems} /> :
                         <ListView selectionMode={selectionMode} toggleSelectionMode={handleToggleSelectionMode} />}
                     <View style={styles.bottomContainer}>
                         <Button
                             icon={<Ionicons name={selectionMode ? "trash-outline" : "ios-add"} size={24} color="#FFECD1" />}
                             buttonStyle={styles.addButton}
-                            onPress={addNote}
+                            onPress={() => { if (!selectionMode) { addNote(); } else { deleteSelected(); } }}
                         />
                     </View>
                 </View>

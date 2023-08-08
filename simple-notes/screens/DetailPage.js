@@ -33,6 +33,12 @@ export default function DetailPage() {
 
     const navigation = useNavigation(true);
 
+    const [showContent, setShowContent] = useState(true);
+
+    const switchView = () => {
+        setShowContent(!showContent);
+    };
+
     return (
         <SafeAreaProvider>
             <ThemeProvider theme={theme}>
@@ -43,11 +49,10 @@ export default function DetailPage() {
                             <Ionicons name={"chevron-back"} size={24} color="white" onPress={navBack} />
                         }
                         rightComponent={
-                            <Ionicons name={"information-outline"} size={24} color="white" onPress={navBack} />
+                            <Ionicons name={showContent ? "information-outline" : "repeat"} size={24} color="white" onPress={switchView} />
                         }
                     />
-                    {/* {showCardView ? <CardView /> : <ListView />} */}
-                    <CardContent />
+                    {showContent ? <CardContent /> : <CardDetail />}
                 </View>
             </ThemeProvider>
         </SafeAreaProvider>

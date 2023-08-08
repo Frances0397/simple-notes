@@ -4,7 +4,7 @@ import { Card, CheckBox } from '@rneui/themed';
 import axios from 'axios';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 
-export default function CardView({ selectionMode, toggleSelectionMode }) {
+export default function CardView({ selectionMode, toggleSelectionMode, handleSelectedItems, selectedItems }) {
     const [data, setData] = useState([]);
     const [refreshing, setRefreshing] = React.useState(false);
     const isFocused = useIsFocused();
@@ -28,7 +28,9 @@ export default function CardView({ selectionMode, toggleSelectionMode }) {
             console.log(response.data);
             setData(response.data); // Store the fetched data in the state
             //  setSelectionMode(false);
-            toggleSelectionMode();
+            if (selectionMode) {
+                toggleSelectionMode();
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -54,12 +56,20 @@ export default function CardView({ selectionMode, toggleSelectionMode }) {
     //     setSelectionMode(true);
     // };
 
-    const toggleItemCheck = (index) => {
+    const toggleItemCheck = (index, item) => {
         setItemChecked((prevChecked) => {
             const newChecked = [...prevChecked];
             newChecked[index] = !newChecked[index];
             return newChecked;
         });
+
+        // Toggle the selection status of the item and update the selected items list
+        const updatedSelectedItems = selectedItems.includes(item)
+            ? selectedItems.filter((selectedItem) => selectedItem !== item)
+            : [...selectedItems, item];
+
+        // Call the function passed as a prop to update the selected items in the parent component
+        handleSelectedItems(updatedSelectedItems);
     };
 
     return (
@@ -75,10 +85,12 @@ export default function CardView({ selectionMode, toggleSelectionMode }) {
                                 <Card.Title numberOfLines={1} ellipsizeMode='tail'>{item.title}</Card.Title>
                                 <Card.Divider />
                                 <Text style={styles.text} numberOfLines={selectionMode ? 2 : 4} ellipsizeMode="tail">{item.content}</Text>
-                                {selectionMode && (< CheckBox containerStyle={styles.checkboxContainer} checkedIcon="dot-circle-o"
-                                    key={item.id}
-                                    uncheckedIcon="circle-o" right='true' checked={itemChecked[index]}
-                                    onPress={() => toggleItemCheck(index)}></CheckBox>)}
+                                {selectionMode && (<View style={styles.bottomContainer}>
+                                    < CheckBox containerStyle={styles.checkboxContainer} checkedIcon="dot-circle-o"
+                                        key={item.id}
+                                        uncheckedIcon="circle-o" right='true' checked={itemChecked[index]}
+                                        onPress={() => toggleItemCheck(index, item)}></CheckBox>
+                                </View>)}
                             </View>
                         </Card>
                     </TouchableOpacity>
@@ -132,13 +144,21 @@ const styles = StyleSheet.create({
         padding: 0,
         margin: 0,
         marginTop: 8,
-        marginLeft: 15,
+        marginLeft: 20,
         backgroundColor: 'transparent',
         borderColor: 'transparent',
     },
     cardContent: {
         flexDirection: 'column',
         justifyContent: 'space-between',
+    },
+    bottomContainer: {
+        // position: 'absolute',
+        backgroundColor: '#FF7D00',
+        flexDirection: "row-reverse",
+        alignItems: "flex-end",
+        // bottom: -30,
+        // right: 2,
     },
 });
 
