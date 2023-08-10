@@ -14,7 +14,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ animation: "none", headerShown: false }}>
+      <Stack.Navigator screenOptions={{ animation: "slide_from_right", headerShown: false }}>
         <Stack.Screen
           name="Home"
           component={MainPage} />

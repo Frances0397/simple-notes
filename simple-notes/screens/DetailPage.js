@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, ScrollView, View } from 'react-native';
+import { StyleSheet, ScrollView, View, Animated } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Text, Card, Button, Icon, ThemeProvider, createTheme } from '@rneui/themed';
@@ -13,13 +13,13 @@ import CardDetail from '../components/CardDetail';
 
 const theme = createTheme({
     colors: {
-        background: '#001524',   // Background color of the app
-        primary: '#15616D',      // Your primary color
-        secondary: '#FF7D00',    // Your secondary color
+        background: '#39373B',   // Background color of the app
+        primary: '#773344',      // Your primary color
+        secondary: '#D44D5C',    // Your secondary color
     },
     Text: {
         style: {
-            color: '#FFECD1',      // Text color
+            color: '##F5E9E2',      // Text color
             fontSize: 16,
         },
     },
@@ -37,8 +37,16 @@ export default function DetailPage() {
     const [content, setContent] = useState("");
 
     const switchView = () => {
-        setShowContent(!showContent);
         setSwitched(true);
+
+        Animated.timing(rotationValue, {
+            toValue,
+            duration: 500,
+            useNativeDriver: true,
+        }).start(() => {
+            setShowContent(!showContent);
+            rotationValue.setValue(0);
+        });
     };
 
     const handleContent = (value) => {
@@ -53,6 +61,17 @@ export default function DetailPage() {
         setTitle(value);
     };
 
+    //card animation
+    const rotationValue = new Animated.Value(0);
+
+    const rotateInterpolation = rotationValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '180deg'],
+    });
+
+    // const toValue = showContent ? 1 : 0;
+    const toValue = 1;
+
     return (
         <SafeAreaProvider>
             <ThemeProvider theme={theme}>
@@ -66,8 +85,10 @@ export default function DetailPage() {
                             <Ionicons name={showContent ? "information-outline" : "repeat"} size={24} color="white" onPress={switchView} />
                         }
                     />
-                    {showContent ? <CardContent content={content} handleContent={handleContent}
-                        switched={switched} title={title} handleTitle={handleTitle} /> : <CardDetail content={content} />}
+                    <Animated.View style={{ transform: [{ rotateY: rotateInterpolation }] }}>
+                        {showContent ? <CardContent content={content} handleContent={handleContent}
+                            switched={switched} title={title} handleTitle={handleTitle} /> : <CardDetail content={content} title={title} />}
+                    </Animated.View>
                 </View>
             </ThemeProvider>
         </SafeAreaProvider>

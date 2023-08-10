@@ -20,17 +20,19 @@ export default function CardContent({ content, handleContent, switched, title, h
 
     const [data, setData] = useState("");
     const [loading, setLoading] = useState(true);
+    const [changeTitleTriggered, setTitleChangeTriggered] = useState(false);
+    const [changeContentTriggered, setContentChangeTriggered] = useState(false);
 
     if (noteId !== '-1') {
         newNote = false;
     }
 
     useEffect(() => {
+        console.log("note id: " + noteId); //testing purposes
         if (noteId !== '-1') {
             fetchData(noteId);
             console.log("use effect event");
-            console.log(data === "");
-            console.log(loading);
+            console.log(title);
         } else {
             setLoading(false); // Set loading to false when no noteId is provided
         }
@@ -49,7 +51,6 @@ export default function CardContent({ content, handleContent, switched, title, h
             const response = await axios.get('http://192.168.43.181:3000/note/' + sId);
             console.log("fetch data");
             console.log(response.data);
-            let jsonString = response.data;
             // const jsonData = JSON.parse(jsonString);
             setData(response.data); // Store the fetched data in the state
             // setLoading(false);
@@ -116,6 +117,8 @@ export default function CardContent({ content, handleContent, switched, title, h
         }
     };
 
+    const titleIsInitial = (title === '');
+
     if (loading) {
         return <Text style={styles.text}>Loading...</Text>;
     } else {
@@ -126,11 +129,16 @@ export default function CardContent({ content, handleContent, switched, title, h
                     containerStyle={styles.cardContainer} wrapperStyle={styles.card}
                 >
                     {/* <Card.Title style={styles.title}>Contenuto</Card.Title> */}
-                    <TextInput numberOfLines={1} ellipsizeMode="tail" style={styles.title} placeholder='Title' ref={inputTitle} onChangeText={(text) => handleTitle(text)}>{switched ? title : (newNote ? "" : data.title)}</TextInput>
+                    <TextInput numberOfLines={1} ellipsizeMode="tail" style={styles.title} placeholder='Title' ref={inputTitle} onChangeText={(text) => {
+                        handleTitle(text); console.log("title changed");
+                        setTitleChangeTriggered(true);
+                        console.log("title: " + title);
+                    }}>{titleIsInitial ? (newNote ? "" : data.title) : title}</TextInput>
                     <Card.Divider />
                     {/* <Text style={styles.text}></Text> */}
                     {/* <Input inputStyle={styles.text}>Lorem er ultricies, lacus lectus gravida s</Input> */}
-                    <TextInput multiline numberOfLines={null} style={styles.text} placeholder='Content' ref={inputContent} onChangeText={(text) => handleContent(text)}>{switched ? content : (newNote ? "" : data.content)}</TextInput>
+                    <TextInput multiline numberOfLines={null} style={styles.text} placeholder='Content' ref={inputContent}
+                        onChangeText={(text) => { handleContent(text); setContentChangeTriggered(true); }}>{changeContentTriggered ? content : (newNote ? "" : data.content)}</TextInput>
                     <View style={styles.bottomContainer}>
                         <Button
                             icon={<Ionicons name="checkmark-circle-outline" size={24} color="#FFECD1" />}
@@ -169,7 +177,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         borderRadius: 15, // Customize the border radius as desired
         borderWidth: 0, // Remove the outline (border)
-        backgroundColor: '#FF7D00',
+        backgroundColor: '#D44D5C',
         // flexDirection: 'row', // Set the flex direction to "row"
         // // flexWrap: 'wrap', // Allow the items to wrap to the next row
         // //elevation: 3, // Add elevation (shadow) for Android devices
@@ -182,21 +190,21 @@ const styles = StyleSheet.create({
         // borderRadius: 20,
     },
     text: {
-        color: '#FFECD1',
+        color: '#F5E9E2',
         fontSize: 17,
     },
     title: {
-        color: '#FFECD1',
+        color: '#F5E9E2',
         fontSize: 21,
         fontWeight: 'bold',
     },
     bottomContainer: {
-        backgroundColor: '#FF7D00',
+        backgroundColor: '#D44D5C',
         flexDirection: "row-reverse",
         alignItems: "flex-end",
         marginTop: 10
     },
     infoButton: {
-        backgroundColor: '#FF7D00',
+        backgroundColor: '#D44D5C',
     }
 });

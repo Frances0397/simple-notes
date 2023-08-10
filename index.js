@@ -105,7 +105,7 @@ app.post('/notes', (req, res) => {
                     console.error('Error writing to file:', err);
                     return res.status(500).json({ error: 'Error writing to file' });
                 } else {
-                    res.send(`New item added and saved successfully with id ${newID.toString()}`);
+                    res.send(`New item added and saved successfully with id ${req.body.id}`);
                 }
             });
         } catch (error) {

@@ -20,12 +20,12 @@ const styles = StyleSheet.create({
     },
     label: {
         fontWeight: "bold",
-        color: '#FFECD1',
+        color: '#F5E9E2',
         margin: 10,
         fontSize: 15,
     },
     content: {
-        color: '#FFECD1',
+        color: '#F5E9E2',
         margin: 10,
         fontSize: 14,
     },

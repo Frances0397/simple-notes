@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Animated } from 'react-native';
 import { Card, CheckBox } from '@rneui/themed';
 import axios from 'axios';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
@@ -72,6 +72,16 @@ export default function CardView({ selectionMode, toggleSelectionMode, handleSel
         handleSelectedItems(updatedSelectedItems);
     };
 
+    //animation
+    const [pulse] = useState(new Animated.Value(1));
+
+    const pulseAnimation = () => {
+        Animated.sequence([
+            Animated.timing(pulse, { toValue: 1.1, duration: 300, useNativeDriver: true }),
+            Animated.timing(pulse, { toValue: 1, duration: 300, useNativeDriver: true }),
+        ]).start();
+    };
+
     return (
         <ScrollView styles={styles.mainContainer} refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={refreshData} />
@@ -79,20 +89,23 @@ export default function CardView({ selectionMode, toggleSelectionMode, handleSel
             <View style={styles.container}>
                 {data.map((item, index) => (
                     <TouchableOpacity key={item.id} onPress={() => { if (!selectionMode) { onSeeContent(item.id); } }}
-                        style={styles.touchableCard} onLongPress={() => { if (!selectionMode) { toggleSelectionMode(); } }}>
-                        <Card key={item.id} containerStyle={styles.cardContainer} wrapperStyle={styles.card} >
-                            <View style={styles.cardContent}>
-                                <Card.Title numberOfLines={1} ellipsizeMode='tail'>{item.title}</Card.Title>
-                                <Card.Divider />
-                                <Text style={styles.text} numberOfLines={selectionMode ? 2 : 4} ellipsizeMode="tail">{item.content}</Text>
-                                {selectionMode && (<View style={styles.bottomContainer}>
-                                    < CheckBox containerStyle={styles.checkboxContainer} checkedIcon="dot-circle-o"
-                                        key={item.id}
-                                        uncheckedIcon="circle-o" right='true' checked={itemChecked[index]}
-                                        onPress={() => toggleItemCheck(index, item)}></CheckBox>
-                                </View>)}
-                            </View>
-                        </Card>
+                        style={styles.touchableCard} onLongPress={() => { if (!selectionMode) { toggleSelectionMode(); pulseAnimation(); } }}>
+                        <Animated.View style={{ transform: [{ scale: pulse }] }}>
+                            <Card key={item.id} containerStyle={styles.cardContainer} wrapperStyle={styles.card} >
+                                <View style={styles.cardContent}>
+
+                                    <Card.Title numberOfLines={1} ellipsizeMode='tail' color="#F5E9E2">{item.title}</Card.Title>
+                                    <Card.Divider />
+                                    <Text style={styles.text} numberOfLines={selectionMode ? 2 : 4} ellipsizeMode="tail">{item.content}</Text>
+                                    {selectionMode && (<View style={styles.bottomContainer}>
+                                        < CheckBox containerStyle={styles.checkboxContainer} checkedIcon="dot-circle-o"
+                                            key={item.id}
+                                            uncheckedIcon="circle-o" right='true' checked={itemChecked[index]}
+                                            onPress={() => toggleItemCheck(index, item)}></CheckBox>
+                                    </View>)}
+                                </View>
+                            </Card>
+                        </Animated.View>
                     </TouchableOpacity>
                 ))}
             </View>
@@ -125,7 +138,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         borderRadius: 15, // Customize the border radius as desired
         borderWidth: 0, // Remove the outline (border)
-        backgroundColor: '#FF7D00',
+        backgroundColor: '#D44D5C',
         // flexDirection: 'row', // Set the flex direction to "row"
         // // flexWrap: 'wrap', // Allow the items to wrap to the next row
         // //elevation: 3, // Add elevation (shadow) for Android devices
@@ -138,7 +151,7 @@ const styles = StyleSheet.create({
         // borderRadius: 20,
     },
     text: {
-        color: '#FFECD1',
+        color: '#F5E9E2',
     },
     checkboxContainer: {
         padding: 0,
@@ -154,7 +167,7 @@ const styles = StyleSheet.create({
     },
     bottomContainer: {
         // position: 'absolute',
-        backgroundColor: '#FF7D00',
+        backgroundColor: 'transparent',
         flexDirection: "row-reverse",
         alignItems: "flex-end",
         // bottom: -30,

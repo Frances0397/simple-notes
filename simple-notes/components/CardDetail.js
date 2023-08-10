@@ -13,13 +13,7 @@ const cardWidthPercentage = 91; // Adjust this value to change the card width
 const cardWidth = (screenWidth * cardWidthPercentage) / 100;
 const marginValue = 15; // Adjust this value to set the desired margin  
 
-const countWords = (text) => {
-    // Remove leading and trailing spaces and then split by spaces
-    const wordsArray = text.trim().split(/\s+/);
-    return wordsArray.length;
-}
-
-export default function CardDetail({ content }) {
+export default function CardDetail({ content, title }) {
 
     var newNote = true; //I check wheter I'm editing an existing note or creating a new one by retrieving the id from the navigation
 
@@ -110,6 +104,16 @@ export default function CardDetail({ content }) {
         }
     }
 
+    const countWords = (text) => {
+        // Remove leading and trailing spaces and then split by spaces
+        if (text !== undefined) {
+            const wordsArray = text.trim().split(/\s+/);
+            return wordsArray.length;
+        } else {
+            return 0;
+        }
+    }
+
     var wordsCount, characterCount;
 
     // if (newNote) {
@@ -127,12 +131,14 @@ export default function CardDetail({ content }) {
     // }
     //calcolo la lunghezza in caratteri e parole direttamente dalla view
     console.log("content" + content);
-    if (content != '') {
+    if (content !== '') {
+        console.log("here");
         wordsCount = countWords(content);
         characterCount = content.length;
     } else {
-        if (newNote !== '-1') {
+        if (!newNote) {
             if (!loading) {
+                console.log("culo");
                 wordsCount = countWords(data.content);
                 characterCount = data.content.length;
             }
@@ -157,6 +163,8 @@ export default function CardDetail({ content }) {
         }
     };
 
+    const titleIsInitial = (title === '');
+
     if (loading) {
         return (<Text>Loading...</Text>);
     } else {
@@ -166,7 +174,7 @@ export default function CardDetail({ content }) {
                     //  key={item.id} 
                     containerStyle={styles.cardContainer} wrapperStyle={styles.card}
                 >
-                    <Card.Title style={styles.title}>{newNote ? "" : data.title}</Card.Title>
+                    <Card.Title style={styles.title}>{titleIsInitial ? (newNote ? "" : data.title) : title}</Card.Title>
                     <Card.Divider />
                     <View style={styles.metadataContainer}>
                         <Metadata label='Data creazione:' value={newNote ? dateToShow : data.date_created} />
@@ -196,7 +204,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         borderRadius: 15, // Customize the border radius as desired
         borderWidth: 0, // Remove the outline (border)
-        backgroundColor: '#FF7D00',
+        backgroundColor: '#D44D5C',
         // flexDirection: 'row', // Set the flex direction to "row"
         // // flexWrap: 'wrap', // Allow the items to wrap to the next row
         // //elevation: 3, // Add elevation (shadow) for Android devices
@@ -237,7 +245,7 @@ const styles = StyleSheet.create({
         marginTop: 3,
     },
     title: {
-        color: '#FFECD1',
+        color: '#F5E9E2',
         fontSize: 21,
         fontWeight: 'bold',
     },

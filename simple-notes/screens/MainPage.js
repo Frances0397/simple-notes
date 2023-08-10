@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, ScrollView, View } from 'react-native';
+import { StyleSheet, ScrollView, View, Animated } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Text, Card, Button, Icon, ThemeProvider, createTheme } from '@rneui/themed';
@@ -14,13 +14,13 @@ import ListView from '../components/ListView';
 
 const theme = createTheme({
     colors: {
-        background: '#001524',   // Background color of the app
-        primary: '#15616D',      // Your primary color
-        secondary: '#FF7D00',    // Your secondary color
+        background: '#39373B',   // Background color of the app
+        primary: '#773344',      // Your primary color
+        secondary: '##D44D5C',    // Your secondary color
     },
     Text: {
         style: {
-            color: '#FFECD1',      // Text color
+            color: '#F5E9E2',      // Text color
             fontSize: 16,
         },
     },
@@ -50,6 +50,9 @@ export default function App() {
     };
 
     const handleToggleSelectionMode = () => {
+
+        console.log("here");
+
         setSelectionMode(!selectionMode);
         setSelectedItems([]);
         setTriggerRefresh(false);
@@ -92,7 +95,7 @@ export default function App() {
                     <Header
                         containerStyle={{ backgroundColor: theme.colors.primary }}
                         leftComponent={
-                            <Ionicons name={showCardView ? "menu" : "grid-outline"} size={24} color="white" onPress={switchView} />
+                            <Ionicons name={showCardView ? "menu" : "grid-outline"} size={24} color="#F5E9E2" onPress={switchView} />
                         }
                         rightComponent={selectionMode && <Ionicons name="close" size={24} onPress={stopSelectionMode} />}
                     />
@@ -102,7 +105,7 @@ export default function App() {
                             handleSelectedItems={handleSelectedItems} selectedItems={selectedItems} refresh={triggerRefresh} />}
                     <View style={styles.bottomContainer}>
                         <Button
-                            icon={<Ionicons name={selectionMode ? "trash-outline" : "ios-add"} size={24} color="#FFECD1" />}
+                            icon={<Ionicons name={selectionMode ? "trash-outline" : "ios-add"} size={24} color="#F5E9E2" />}
                             buttonStyle={styles.addButton}
                             onPress={() => { if (!selectionMode) { addNote(); } else { deleteSelected(); } }}
                         />
