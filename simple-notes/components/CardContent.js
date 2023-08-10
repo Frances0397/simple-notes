@@ -11,7 +11,7 @@ const cardWidthPercentage = 91; // Adjust this value to change the card width
 const cardWidth = (screenWidth * cardWidthPercentage) / 100;
 const marginValue = 15; // Adjust this value to set the desired margin  
 
-export default function CardContent() {
+export default function CardContent({ content, handleContent, switched, title, handleTitle }) {
     var newNote = true; //I check wheter I'm editing an existing note or creating a new one by retrieving the id from the navigation
 
     const navigation = useNavigation();
@@ -63,9 +63,6 @@ export default function CardContent() {
     const inputTitle = useRef(null); // Create a ref for the title TextInput
     const inputContent = useRef(null); // Create a ref for the content TextInput
 
-    const [title, setTitle] = useState("");
-    const [content, setContent] = useState(""); //
-
     const save = () => {
         console.log("saving note");
 
@@ -100,7 +97,7 @@ export default function CardContent() {
     const createData = async (oNote) => {
         try {
             const response = await axios.post('http://192.168.43.181:3000/notes', oNote);
-            console.log(response);
+            alert(response.data);
             navigation.navigate('Home');
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -108,10 +105,10 @@ export default function CardContent() {
         }
     };
 
-    const updateData = async (sNote) => {
+    const updateData = async (oNote) => {
         try {
-            const response = await axios.put('http://192.168.43.181:3000/note/' + noteId, sNote);
-            console.log(response);
+            const response = await axios.put('http://192.168.43.181:3000/note/' + noteId, oNote);
+            alert(response.data);
             navigation.navigate('Home');
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -129,11 +126,11 @@ export default function CardContent() {
                     containerStyle={styles.cardContainer} wrapperStyle={styles.card}
                 >
                     {/* <Card.Title style={styles.title}>Contenuto</Card.Title> */}
-                    <TextInput numberOfLines={1} ellipsizeMode="tail" style={styles.title} placeholder='Title' ref={inputTitle} onChangeText={(text) => setTitle(text)}>{newNote ? "" : data.title}</TextInput>
+                    <TextInput numberOfLines={1} ellipsizeMode="tail" style={styles.title} placeholder='Title' ref={inputTitle} onChangeText={(text) => handleTitle(text)}>{switched ? title : (newNote ? "" : data.title)}</TextInput>
                     <Card.Divider />
                     {/* <Text style={styles.text}></Text> */}
                     {/* <Input inputStyle={styles.text}>Lorem er ultricies, lacus lectus gravida s</Input> */}
-                    <TextInput multiline numberOfLines={null} style={styles.text} placeholder='Content' ref={inputContent} onChangeText={(text) => setContent(text)}>{newNote ? "" : data.content}</TextInput>
+                    <TextInput multiline numberOfLines={null} style={styles.text} placeholder='Content' ref={inputContent} onChangeText={(text) => handleContent(text)}>{switched ? content : (newNote ? "" : data.content)}</TextInput>
                     <View style={styles.bottomContainer}>
                         <Button
                             icon={<Ionicons name="checkmark-circle-outline" size={24} color="#FFECD1" />}

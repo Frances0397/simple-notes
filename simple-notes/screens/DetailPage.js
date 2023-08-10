@@ -34,9 +34,23 @@ export default function DetailPage() {
     const navigation = useNavigation(true);
 
     const [showContent, setShowContent] = useState(true);
+    const [content, setContent] = useState("");
 
     const switchView = () => {
         setShowContent(!showContent);
+        setSwitched(true);
+    };
+
+    const handleContent = (value) => {
+        setContent(value);
+    };
+
+    //handle keeping the content and the title when switching from one child view to the other
+    const [title, setTitle] = useState('');
+    const [switched, setSwitched] = useState(false);
+
+    const handleTitle = (value) => {
+        setTitle(value);
     };
 
     return (
@@ -52,7 +66,8 @@ export default function DetailPage() {
                             <Ionicons name={showContent ? "information-outline" : "repeat"} size={24} color="white" onPress={switchView} />
                         }
                     />
-                    {showContent ? <CardContent /> : <CardDetail />}
+                    {showContent ? <CardContent content={content} handleContent={handleContent}
+                        switched={switched} title={title} handleTitle={handleTitle} /> : <CardDetail content={content} />}
                 </View>
             </ThemeProvider>
         </SafeAreaProvider>

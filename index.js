@@ -175,6 +175,8 @@ app.delete('/note/:id', (req, res) => {
 
             //Creo una copia dell'array senza la nota cancellata
             var noteItems = notes.filter((item) => item.id !== noteId);
+            // console.log("here");
+            // console.log(noteItems);
 
             //salvo il nuovo array nel file json
             fs.writeFile('./files/notes.json', JSON.stringify(noteItems, null, 2), 'utf8', (err) => {

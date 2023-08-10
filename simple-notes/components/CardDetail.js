@@ -5,13 +5,21 @@ import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
+import Metadata from './Metadata';
+
 const screenWidth = Dimensions.get('window').width;
 const cardWidthPercentage = 91; // Adjust this value to change the card width
 
 const cardWidth = (screenWidth * cardWidthPercentage) / 100;
 const marginValue = 15; // Adjust this value to set the desired margin  
 
-export default function CardDetail() {
+const countWords = (text) => {
+    // Remove leading and trailing spaces and then split by spaces
+    const wordsArray = text.trim().split(/\s+/);
+    return wordsArray.length;
+}
+
+export default function CardDetail({ content }) {
 
     var newNote = true; //I check wheter I'm editing an existing note or creating a new one by retrieving the id from the navigation
 
@@ -101,35 +109,87 @@ export default function CardDetail() {
             currentSeconds = '0' + currentSeconds;
         }
     }
+
+    var wordsCount, characterCount;
+
+    // if (newNote) {
+    //     //calcolo la lunghezza in caratteri e parole direttamente dalla view
+    //     console.log("content" + content);
+    //     if (content != '') {
+    //         wordsCount = countWords(content);
+    //         characterCount = content.length;
+    //     }
+    // } else {
+    //     if (!loading) {
+    //         wordsCount = countWords(data.content);
+    //         characterCount = data.content.length;
+    //     }
+    // }
+    //calcolo la lunghezza in caratteri e parole direttamente dalla view
+    console.log("content" + content);
+    if (content != '') {
+        wordsCount = countWords(content);
+        characterCount = content.length;
+    } else {
+        if (newNote !== '-1') {
+            if (!loading) {
+                wordsCount = countWords(data.content);
+                characterCount = data.content.length;
+            }
+        }
+    }
+
     //HANDLE BUTTONS
     const onExport = () => {
         alert("Coming soon");
     };
 
-    return (
-        <ScrollView>
-            <Card
-                //  key={item.id} 
-                containerStyle={styles.cardContainer} wrapperStyle={styles.card}
-            >
-                <Card.Title style={styles.title}>{newNote ? "" : data.title}</Card.Title>
-                <Card.Divider />
-                <View style={styles.metadataContainer}>
+    const onDelete = async () => {
+        try {
+            const response = await axios.delete('http://192.168.43.181:3000/note/' + noteId);
+            if (noteId !== '-1') {
+                alert(response.data);
+            }
+            //navigo alla home
+            navigation.navigate('Home');
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
-                </View>
-                <View style={styles.bottomContainer}>
-                    <TouchableOpacity style={styles.exportButtonContainer} onPress={onExport}>
-                        <Text>Esporta nota</Text>
-                        <Ionicons name="log-out-outline" size={15} style={styles.buttonIcons} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.deleteButtonContainer}>
-                        <Ionicons name="trash-outline" size={15} color={"red"} />
-                        <Text>Elimina</Text>
-                    </TouchableOpacity>
-                </View>
-            </Card>
-        </ScrollView>
-    );
+    if (loading) {
+        return (<Text>Loading...</Text>);
+    } else {
+        return (
+            <ScrollView>
+                <Card
+                    //  key={item.id} 
+                    containerStyle={styles.cardContainer} wrapperStyle={styles.card}
+                >
+                    <Card.Title style={styles.title}>{newNote ? "" : data.title}</Card.Title>
+                    <Card.Divider />
+                    <View style={styles.metadataContainer}>
+                        <Metadata label='Data creazione:' value={newNote ? dateToShow : data.date_created} />
+                        <Metadata label='Ora creazione:' value={newNote ? timeToShow : data.time_created} />
+                        <Metadata label='Data ultima modifica:' value={newNote ? dateToShow : data.date_modified} />
+                        <Metadata label='Ora ultima modifica:' value={newNote ? timeToShow : data.time_modified} />
+                        <Metadata label='Numero parole:' value={wordsCount} />
+                        <Metadata label='Numero caratteri:' value={characterCount} />
+                    </View>
+                    <View style={styles.bottomContainer}>
+                        <TouchableOpacity style={styles.exportButtonContainer} onPress={onExport}>
+                            <Text>Esporta nota</Text>
+                            <Ionicons name="log-out-outline" size={15} style={styles.buttonIcons} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.deleteButtonContainer} onPress={onDelete}>
+                            <Ionicons name="trash-outline" size={15} color={"red"} />
+                            <Text>Elimina</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Card>
+            </ScrollView>
+        );
+    }
 }
 
 const styles = StyleSheet.create({
@@ -180,5 +240,9 @@ const styles = StyleSheet.create({
         color: '#FFECD1',
         fontSize: 21,
         fontWeight: 'bold',
+    },
+    metadataContainer: {
+        flexDirection: 'column',
+        marginBottom: 50,
     },
 });

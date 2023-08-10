@@ -33,24 +33,31 @@ export default function App() {
     const [showCardView, setShowCardView] = useState(true);
     const [selectionMode, setSelectionMode] = useState(true);
     const [selectedItems, setSelectedItems] = useState([]);
+    const [triggerRefresh, setTriggerRefresh] = useState(false);
 
     const switchView = () => {
         setShowCardView(!showCardView);
+        setSelectionMode(false);
+        setSelectedItems([]);
+        setTriggerRefresh(false);
     };
 
     const addNote = () => {
         //TO-DO: handle switching to content view
         console.log("Nav to card detail page");
         navigation.navigate("Detail", { id: "-1" });
+        setTriggerRefresh(false);
     };
 
     const handleToggleSelectionMode = () => {
         setSelectionMode(!selectionMode);
         setSelectedItems([]);
+        setTriggerRefresh(false);
     };
 
     const stopSelectionMode = () => {
         setSelectionMode(false);
+        setTriggerRefresh(false);
     };
 
     const deleteSelected = () => {
@@ -68,6 +75,7 @@ export default function App() {
         try {
             const response = await axios.delete('http://192.168.43.181:3000/note/' + noteId);
             console.log(response.data);
+            setTriggerRefresh(true);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -89,8 +97,9 @@ export default function App() {
                         rightComponent={selectionMode && <Ionicons name="close" size={24} onPress={stopSelectionMode} />}
                     />
                     {showCardView ? <CardView selectionMode={selectionMode} toggleSelectionMode={handleToggleSelectionMode}
-                        handleSelectedItems={handleSelectedItems} selectedItems={selectedItems} /> :
-                        <ListView selectionMode={selectionMode} toggleSelectionMode={handleToggleSelectionMode} />}
+                        handleSelectedItems={handleSelectedItems} selectedItems={selectedItems} refresh={triggerRefresh} /> :
+                        <ListView selectionMode={selectionMode} toggleSelectionMode={handleToggleSelectionMode}
+                            handleSelectedItems={handleSelectedItems} selectedItems={selectedItems} refresh={triggerRefresh} />}
                     <View style={styles.bottomContainer}>
                         <Button
                             icon={<Ionicons name={selectionMode ? "trash-outline" : "ios-add"} size={24} color="#FFECD1" />}

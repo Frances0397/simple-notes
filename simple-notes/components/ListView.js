@@ -4,11 +4,13 @@ import { ListItem, CheckBox } from '@rneui/themed';
 import axios from 'axios';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 
-export default function ListView({ selectionMode, toggleSelectionMode }) {
+export default function ListView({ selectionMode, toggleSelectionMode, handleSelectedItems, selectedItems, refresh }) {
     const [data, setData] = useState([]); //TO-DO: vedere se la parte di chiamata, visto che è uguale per le due viste, si può modularizzare
     const [refreshing, setRefreshing] = React.useState(false);
     const isFocused = useIsFocused();
     const [itemChecked, setItemChecked] = useState([]);
+
+    console.log("selection mode " + selectionMode); //testing purposes
 
     // Make the API call using Axios when the component mounts
     useEffect(() => {
@@ -19,14 +21,16 @@ export default function ListView({ selectionMode, toggleSelectionMode }) {
         //I set all the chekboxes to unselected
         const initialChecked = new Array(data.length).fill(false);
         setItemChecked(initialChecked);
-    }, [isFocused]);
+    }, [isFocused, refresh]);
 
     const fetchData = async () => {
         try {
             const response = await axios.get('http://192.168.43.181:3000/notes');
             console.log(response.data);
             setData(response.data); // Store the fetched data in the state
-            toggleSelectionMode();
+            if (selectionMode) {
+                toggleSelectionMode();
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -47,18 +51,20 @@ export default function ListView({ selectionMode, toggleSelectionMode }) {
     };
 
     //handling of massive selection + deletion
-    // const onHold = () => {
-    //     console.log("you long pressed a note!");
-    //     //show checkboxes for multiple selection
-    //     toggleSelectionMode();
-    // };
-
-    const toggleItemCheck = (index) => {
+    const toggleItemCheck = (index, item) => {
         setItemChecked((prevChecked) => {
             const newChecked = [...prevChecked];
             newChecked[index] = !newChecked[index];
             return newChecked;
         });
+
+        // Toggle the selection status of the item and update the selected items list
+        const updatedSelectedItems = selectedItems.includes(item)
+            ? selectedItems.filter((selectedItem) => selectedItem !== item)
+            : [...selectedItems, item];
+
+        // Call the function passed as a prop to update the selected items in the parent component
+        handleSelectedItems(updatedSelectedItems);
     };
 
     return (
@@ -74,7 +80,7 @@ export default function ListView({ selectionMode, toggleSelectionMode }) {
                             <Text style={styles.text} numberOfLines={4} ellipsizeMode="tail">{item.content}</Text>
                         </ListItem.Content>
                         {selectionMode && <CheckBox checkedIcon="dot-circle-o" uncheckedIcon="circle-o"
-                            key={item.id} checked={itemChecked[index]} onPress={() => toggleItemCheck(index)}></CheckBox>}
+                            key={item.id} checked={itemChecked[index]} onPress={() => toggleItemCheck(index, item)}></CheckBox>}
                     </ListItem>
                 ))}
             </View>

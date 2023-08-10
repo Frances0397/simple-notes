@@ -4,7 +4,7 @@ import { Card, CheckBox } from '@rneui/themed';
 import axios from 'axios';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 
-export default function CardView({ selectionMode, toggleSelectionMode, handleSelectedItems, selectedItems }) {
+export default function CardView({ selectionMode, toggleSelectionMode, handleSelectedItems, selectedItems, refresh }) {
     const [data, setData] = useState([]);
     const [refreshing, setRefreshing] = React.useState(false);
     const isFocused = useIsFocused();
@@ -20,7 +20,7 @@ export default function CardView({ selectionMode, toggleSelectionMode, handleSel
         //I set all the chekboxes to unselected
         const initialChecked = new Array(data.length).fill(false);
         setItemChecked(initialChecked);
-    }, [isFocused]);
+    }, [isFocused, refresh]);
 
     const fetchData = async () => {
         try {
