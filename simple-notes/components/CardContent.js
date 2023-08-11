@@ -11,7 +11,7 @@ const cardWidthPercentage = 91; // Adjust this value to change the card width
 const cardWidth = (screenWidth * cardWidthPercentage) / 100;
 const marginValue = 15; // Adjust this value to set the desired margin  
 
-export default function CardContent({ content, handleContent, switched, title, handleTitle }) {
+export default function CardContent({ content, handleContent, switched, title, handleTitle, savedSuccessfully }) {
     var newNote = true; //I check wheter I'm editing an existing note or creating a new one by retrieving the id from the navigation
 
     const navigation = useNavigation();
@@ -98,7 +98,8 @@ export default function CardContent({ content, handleContent, switched, title, h
     const createData = async (oNote) => {
         try {
             const response = await axios.post('http://192.168.43.181:3000/notes', oNote);
-            alert(response.data);
+            // alert(response.data);
+            savedSuccessfully(response.data);
             navigation.navigate('Home');
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -109,7 +110,8 @@ export default function CardContent({ content, handleContent, switched, title, h
     const updateData = async (oNote) => {
         try {
             const response = await axios.put('http://192.168.43.181:3000/note/' + noteId, oNote);
-            alert(response.data);
+            // alert(response.data);
+            savedSuccessfully(response.data);
             navigation.navigate('Home');
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -128,15 +130,12 @@ export default function CardContent({ content, handleContent, switched, title, h
                     //  key={item.id} 
                     containerStyle={styles.cardContainer} wrapperStyle={styles.card}
                 >
-                    {/* <Card.Title style={styles.title}>Contenuto</Card.Title> */}
                     <TextInput numberOfLines={1} ellipsizeMode="tail" style={styles.title} placeholder='Title' ref={inputTitle} onChangeText={(text) => {
                         handleTitle(text); console.log("title changed");
                         setTitleChangeTriggered(true);
                         console.log("title: " + title);
                     }}>{titleIsInitial ? (newNote ? "" : data.title) : title}</TextInput>
                     <Card.Divider />
-                    {/* <Text style={styles.text}></Text> */}
-                    {/* <Input inputStyle={styles.text}>Lorem er ultricies, lacus lectus gravida s</Input> */}
                     <TextInput multiline numberOfLines={null} style={styles.text} placeholder='Content' ref={inputContent}
                         onChangeText={(text) => { handleContent(text); setContentChangeTriggered(true); }}>{changeContentTriggered ? content : (newNote ? "" : data.content)}</TextInput>
                     <View style={styles.bottomContainer}>

@@ -34,7 +34,7 @@ function getModifiedTime() {
 
 function getNewId(notes) {
     //build array of ids
-    var aIds = getAllIds(notes);
+    var aIds = getAllIds(notes);;
     //find first free id
     var newId = getFreeId(aIds);
 
@@ -45,20 +45,20 @@ function getAllIds(notes) { //I need to sort the IDs
     let aIds = []
     for (let i = 0; i < notes.length; i++) {
         let id = notes[i].id;
-        aIds.push(id);
+        aIds.push(parseInt(id));
     }
+    aIds.sort((a, b) => a - b);
     return aIds;
 }
 
 function getFreeId(aIds) {
-    let freeId = '1';
+    let freeId = 1;
     for (let i = 0; i < aIds.length; i++) {
         console.log(freeId); //testing purposes
         console.log(aIds[i]);
         console.log(freeId === aIds[i]); //testing purposes
         if (freeId === aIds[i]) {
-            let newId = parseInt(freeId) + 1;
-            freeId = newId.toString();
+            freeId = freeId + 1;
             console.log("old id " + aIds[i]); //test
             console.log("new id: " + freeId); //test
         } else {
@@ -66,6 +66,7 @@ function getFreeId(aIds) {
             break;
         }
     }
+    freeId = freeId.toString();
     return freeId;
 }
 

@@ -72,6 +72,15 @@ export default function DetailPage() {
     // const toValue = showContent ? 1 : 0;
     const toValue = 1;
 
+    //handle message modal
+    const [modalVisible, setModalVisible] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+
+    const handleShowModal = (text) => {
+        setSuccessMessage(text);
+        setModalVisible(true);
+    };
+
     return (
         <SafeAreaProvider>
             <ThemeProvider theme={theme}>
@@ -85,9 +94,24 @@ export default function DetailPage() {
                             <Ionicons name={showContent ? "information-outline" : "repeat"} size={24} color="white" onPress={switchView} />
                         }
                     />
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)}
+                    >
+                        <View style={styles.modalContainer}>
+                            <View style={styles.modalContent}>
+                                <Text>{successMessage}</Text>
+                                <Button title="Confirm" onPress={confirmNavigation} />
+                                <Button title="Cancel" onPress={cancelNavigation} />
+                            </View>
+                        </View>
+                    </Modal>
                     <Animated.View style={{ transform: [{ rotateY: rotateInterpolation }] }}>
                         {showContent ? <CardContent content={content} handleContent={handleContent}
-                            switched={switched} title={title} handleTitle={handleTitle} /> : <CardDetail content={content} title={title} />}
+                            switched={switched} title={title} handleTitle={handleTitle} savedSuccessfully={handleShowModal} />
+                            : <CardDetail content={content} title={title} />}
                     </Animated.View>
                 </View>
             </ThemeProvider>
