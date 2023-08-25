@@ -24,7 +24,7 @@ export default function CardView({ selectionMode, toggleSelectionMode, handleSel
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://192.168.43.181:3000/notes');
+            const response = await axios.get('http://192.168.1.62:3000/notes');
             console.log(response.data);
             setData(response.data); // Store the fetched data in the state
             //  setSelectionMode(false);

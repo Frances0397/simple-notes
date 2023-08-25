@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, ScrollView, View, Animated } from 'react-native';
+import { StyleSheet, ScrollView, View, Animated, Modal, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Text, Card, Button, Icon, ThemeProvider, createTheme } from '@rneui/themed';
@@ -76,8 +76,9 @@ export default function App() {
 
     const deleteNote = async (noteId) => {
         try {
-            const response = await axios.delete('http://192.168.43.181:3000/note/' + noteId);
-            console.log(response.data);
+            const response = await axios.delete('http://192.168.1.62:3000/note/' + noteId);
+            //console.log(response.data);
+            handleShowModal(response.data);
             setTriggerRefresh(true);
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -86,6 +87,16 @@ export default function App() {
 
     const handleSelectedItems = (newSelectedItems) => {
         setSelectedItems(newSelectedItems);
+    };
+
+    //handle message modal
+    const [modalVisible, setModalVisible] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+
+    const handleShowModal = (text) => {
+        console.log("modal: " + modalVisible);
+        setSuccessMessage(text);
+        setModalVisible(true);
     };
 
     return (
@@ -99,6 +110,25 @@ export default function App() {
                         }
                         rightComponent={selectionMode && <Ionicons name="close" size={24} onPress={stopSelectionMode} />}
                     />
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)}
+                    >
+                        <TouchableOpacity
+                            style={styles.modalBackdrop}
+                            activeOpacity={1} // Prevent any interaction with the background
+                            onPress={() => closeModal()} // Close the modal when pressed
+                        />
+                        <View style={styles.modalContainer}>
+                            <View style={styles.modalContent}>
+                                <Text>{successMessage}</Text>
+                                {/* <Button title="Confirm" onPress={confirmNavigation} />
+                                <Button title="Cancel" onPress={cancelNavigation} /> */}
+                            </View>
+                        </View>
+                    </Modal>
                     {showCardView ? <CardView selectionMode={selectionMode} toggleSelectionMode={handleToggleSelectionMode}
                         handleSelectedItems={handleSelectedItems} selectedItems={selectedItems} refresh={triggerRefresh} /> :
                         <ListView selectionMode={selectionMode} toggleSelectionMode={handleToggleSelectionMode}
@@ -138,5 +168,20 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: theme.colors.primary,
+        padding: 20,
+        borderRadius: 10,
+    },
+    modalBackdrop: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black background
     },
 });

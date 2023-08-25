@@ -27,6 +27,7 @@ app.get('/notes', (req, res) => {
 
         try {
             //Parse the json file 
+            console.log(data);
             const notes = JSON.parse(data);
             //Build an array with IDs, titles and content preview
             var noteItems = [];

@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, ScrollView, View, Animated } from 'react-native';
+import { StyleSheet, ScrollView, View, Animated, Modal, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Text, Card, Button, Icon, ThemeProvider, createTheme } from '@rneui/themed';
@@ -81,6 +81,12 @@ export default function DetailPage() {
         setModalVisible(true);
     };
 
+    const closeModal = () => {
+        console.log("closing modal");
+        setModalVisible(false);
+        setSuccessMessage('');
+    };
+
     return (
         <SafeAreaProvider>
             <ThemeProvider theme={theme}>
@@ -100,18 +106,23 @@ export default function DetailPage() {
                         visible={modalVisible}
                         onRequestClose={() => setModalVisible(false)}
                     >
+                        <TouchableOpacity
+                            style={styles.modalBackdrop}
+                            activeOpacity={1} // Prevent any interaction with the background
+                            onPress={() => closeModal()} // Close the modal when pressed
+                        />
                         <View style={styles.modalContainer}>
                             <View style={styles.modalContent}>
                                 <Text>{successMessage}</Text>
-                                <Button title="Confirm" onPress={confirmNavigation} />
-                                <Button title="Cancel" onPress={cancelNavigation} />
+                                {/* <Button title="Confirm" onPress={confirmNavigation} />
+                                <Button title="Cancel" onPress={cancelNavigation} /> */}
                             </View>
                         </View>
                     </Modal>
                     <Animated.View style={{ transform: [{ rotateY: rotateInterpolation }] }}>
                         {showContent ? <CardContent content={content} handleContent={handleContent}
                             switched={switched} title={title} handleTitle={handleTitle} savedSuccessfully={handleShowModal} />
-                            : <CardDetail content={content} title={title} />}
+                            : <CardDetail content={content} title={title} deletedSuccessfully={handleShowModal} />}
                     </Animated.View>
                 </View>
             </ThemeProvider>
@@ -127,5 +138,20 @@ const styles = StyleSheet.create({
         flexDirection: "column"
         // alignSelf: 'center',
         // justifyContent: 'center',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: theme.colors.primary,
+        padding: 20,
+        borderRadius: 10,
+    },
+    modalBackdrop: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black background
     },
 });

@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, TextInput, PermissionsAndroid } from 'react-native';
 import { Card, Input, Button } from '@rneui/themed';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 
 import Metadata from './Metadata';
 
@@ -13,7 +15,7 @@ const cardWidthPercentage = 91; // Adjust this value to change the card width
 const cardWidth = (screenWidth * cardWidthPercentage) / 100;
 const marginValue = 15; // Adjust this value to set the desired margin  
 
-export default function CardDetail({ content, title }) {
+export default function CardDetail({ content, title, deletedSuccessfully }) {
 
     var newNote = true; //I check wheter I'm editing an existing note or creating a new one by retrieving the id from the navigation
 
@@ -49,10 +51,9 @@ export default function CardDetail({ content, title }) {
 
     const fetchData = async (sId) => {
         try {
-            const response = await axios.get('http://192.168.43.181:3000/note/' + sId);
+            const response = await axios.get('http://192.168.1.62:3000/note/' + sId);
             console.log("fetch data");
             console.log(response.data);
-            let jsonString = response.data;
             // const jsonData = JSON.parse(jsonString);
             setData(response.data); // Store the fetched data in the state
             // setLoading(false);
@@ -146,15 +147,37 @@ export default function CardDetail({ content, title }) {
     }
 
     //HANDLE BUTTONS
-    const onExport = () => {
-        alert("Coming soon");
+    const onExport = async () => {
+        if (content === '') {
+            content = data.content;
+        }
+
+        if (title === '') {
+            title = data.title;
+        }
+
+        console.log("exporting data");
+        console.log(content);
+        console.log(title);
+
+        const permission = await MediaLibrary.requestPermissionsAsync();
+
+        if (permission.granted) {
+            let fileUri = FileSystem.documentDirectory + 'Download/' + title + '.txt';
+            console.log('fileuri: ' + fileUri);
+            await FileSystem.writeAsStringAsync(fileUri, content, { encoding: FileSystem.EncodingType.UTF8 });
+            const asset = await MediaLibrary.createAssetAsync(fileUri);
+            await MediaLibrary.createAlbumAsync("SimpleNotes", asset, false);
+        }
+
     };
 
     const onDelete = async () => {
         try {
-            const response = await axios.delete('http://192.168.43.181:3000/note/' + noteId);
+            const response = await axios.delete('http://192.168.1.62:3000/note/' + noteId);
             if (noteId !== '-1') {
-                alert(response.data);
+                // alert(response.data);
+                deletedSuccessfully(response.data);
             }
             //navigo alla home
             navigation.navigate('Home');

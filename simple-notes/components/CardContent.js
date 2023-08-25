@@ -48,7 +48,7 @@ export default function CardContent({ content, handleContent, switched, title, h
 
     const fetchData = async (sId) => {
         try {
-            const response = await axios.get('http://192.168.43.181:3000/note/' + sId);
+            const response = await axios.get('http://192.168.1.62:3000/note/' + sId);
             console.log("fetch data");
             console.log(response.data);
             // const jsonData = JSON.parse(jsonString);
@@ -83,7 +83,8 @@ export default function CardContent({ content, handleContent, switched, title, h
             oNote.time_created = data.time_created;
 
             if (title == '') {
-                oNote.title = data.title;
+                oNo
+                e.title = data.title;
             }
             if (content == '') {
                 oNote.content = data.content;
@@ -97,7 +98,7 @@ export default function CardContent({ content, handleContent, switched, title, h
 
     const createData = async (oNote) => {
         try {
-            const response = await axios.post('http://192.168.43.181:3000/notes', oNote);
+            const response = await axios.post('http://192.168.1.62:3000/notes', oNote);
             // alert(response.data);
             savedSuccessfully(response.data);
             navigation.navigate('Home');
@@ -109,7 +110,7 @@ export default function CardContent({ content, handleContent, switched, title, h
 
     const updateData = async (oNote) => {
         try {
-            const response = await axios.put('http://192.168.43.181:3000/note/' + noteId, oNote);
+            const response = await axios.put('http://192.168.1.62:3000/note/' + noteId, oNote);
             // alert(response.data);
             savedSuccessfully(response.data);
             navigation.navigate('Home');
